@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>8086 Address Calculator</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    min-height: 100vh;
+    padding: 35px 16px;
+    color: #f8fafc;
+    background:
+        radial-gradient(circle at top left, #4338ca 0, transparent 35%),
+        radial-gradient(circle at bottom right, #7e22ce 0, transparent 30%),
+        #0b1020;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    display: inline-block;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    border: 1px solid #818cf8;
+    border-radius: 15px;
+    background: #312e81;
+    font-size: 26px;
+    font-weight: bold;
+    color: #c4b5fd;
+}
+
+.header h1 {
+    font-size: clamp(27px, 5vw, 40px);
+    margin-bottom: 12px;
+}
+
+.header h1 span {
+    color: #a5b4fc;
+}
+
+.header p {
+    color: #b8c2d9;
+    line-height: 1.7;
+}
+
+.card {
+    background: rgba(24, 32, 57, 0.92);
+    border: 1px solid #343f63;
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 15px 40px #00000035;
+}
+
+.card-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #e0e7ff;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+label {
+    display: block;
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 9px;
+}
+
+select, input {
+    width: 100%;
+    padding: 13px;
+    color: #ffffff;
+    background: #10182d;
+    border: 1px solid #475477;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+select:focus, input:focus {
+    border-color: #a5b4fc;
+    box-shadow: 0 0 0 3px #818cf833;
+}
+
+input {
+    margin-top: 10px;
+    text-transform: uppercase;
+    font-family: Consolas, monospace;
+    letter-spacing: 1px;
+}
+
+.hint {
+    display: block;
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 25px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(100deg, #6366f1, #a855f7);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 7px 20px #6366f14a;
+    transition: 0.25s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px #8b5cf66b;
+}
+
+.result {
+    display: none;
+}
+
+.result-label {
+    color: #a5b4fc;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.answer {
+    color: #6ee7b7;
+    font-family: Consolas, monospace;
+    font-size: clamp(26px, 6vw, 42px);
+    margin: 15px 0;
+    overflow-wrap: anywhere;
+}
+
+.formula {
+    color: #cbd5e1;
+    background: #10182d;
+    border-radius: 12px;
+    padding: 16px;
+    line-height: 1.9;
+    margin: 18px 0;
+    overflow-wrap: anywhere;
+}
+
+.steps {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #222c49;
+    padding: 14px;
+    border-radius: 10px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.number {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+    background: #4f46e5;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.step strong {
+    color: #ddd6fe;
+}
+
+.error {
+    display: none;
+    color: #fda4af;
+    background: #4c1727;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.clear-btn {
+    background: #26324f;
+    box-shadow: none;
+    border: 1px solid #475477;
+    margin-top: 12px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.info {
+    text-align: center;
+    padding: 16px 8px;
+    background: #10182d;
+    border-radius: 12px;
+    border: 1px solid #343f63;
+}
+
+.info strong {
+    display: block;
+    color: #a5b4fc;
+    font-size: 19px;
+    margin-bottom: 7px;
+}
+
+.info span {
+    color: #aebbd2;
+    font-size: 12px;
+}
+
+footer {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.8;
+    padding: 10px;
+}
+
+@media (max-width: 550px) {
+    body {
+        padding: 24px 12px;
+    }
+
+    .card {
+        padding: 19px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="header">
+        <div class="logo">8086 ⚡</div>
+        <h1>Physical Address <span>Calculator</span></h1>
+        <p>
+            Intel 8086 Microprocessor · Hexadecimal Addressing<br>
+            Calculate, understand and learn step by step.
+        </p>
+    </header>
+
+    <section class="card">
+        <h2 class="card-title">⚙️ Enter Register Values</h2>
+
+        <div class="form-grid">
+
+            <div>
+                <label for="segmentRegister">
+                    📦 Segment Register
+                </label>
+
+                <select id="segmentRegister">
+                    <option value="CS">CS — Code Segment</option>
+                    <option value="DS">DS — Data Segment</option>
+                    <option value="SS">SS — Stack Segment</option>
+                    <option value="ES">ES — Extra Segment</option>
+                </select>
+
+                <input id="segment" maxlength="4"
+                       placeholder="e.g. 3456"
+                       autocomplete="off">
+
+                <span class="hint">Hexadecimal: 0000 to FFFF</span>
+            </div>
+
+            <div>
+                <label for="offsetRegister">
+                    🎯 Offset Register
+                </label>
+
+                <select id="offsetRegister">
+                    <option value="IP">IP — Instruction Pointer</option>
+                    <option value="SI">SI — Source Index</option>
+                    <option value="DI">DI — Destination Index</option>
+                    <option value="BP">BP — Base Pointer</option>
+                    <option value="SP">SP — Stack Pointer</option>
+                    <option value="BX">BX — Base Register</option>
+                    <option value="Direct">Direct Offset</option>
+                </select>
+
+                <input id="offset" maxlength="4"
+                       placeholder="e.g. 2789"
+                       autocomplete="off">
+
+                <span class="hint">Hexadecimal: 0000 to FFFF</span>
+            </div>
+
+        </div>
+
+        <button onclick="calculateAddress()">
+            ✨ Calculate Physical Address
+        </button>
+
+        <div id="error" class="error" role="alert"></div>
+
+        <button class="clear-btn" onclick="clearCalculator()">
+            ↺ Clear Values
+        </button>
+    </section>
+
+    <section class="card result" id="result" aria-live="polite">
+        <div class="result-label">Calculated Physical Address</div>
+        <div class="answer" id="answer"></div>
+
+        <div class="formula" id="formula"></div>
+
+        <h2 class="card-title">🧮 Step-by-Step Calculation</h2>
+        <div class="steps" id="steps"></div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">💡 Quick Concept Guide</h2>
+
+        <div class="info-grid">
+            <div class="info">
+                <strong>16-bit</strong>
+                <span>Segment Register</span>
+            </div>
+
+            <div class="info">
+                <strong>16-bit</strong>
+                <span>Offset Register</span>
+            </div>
+
+            <div class="info">
+                <strong>20-bit</strong>
+                <span>Physical Address Bus</span>
+            </div>
+        </div>
+
+        <div class="formula">
+            <strong>Formula:</strong><br>
+            Physical Address = (Segment × 10H) + Offset<br>
+            <span style="color:#a5b4fc">
+                Multiply the segment by 16, then add the offset.
+            </span>
+        </div>
+    </section>
+
+    <footer>
+        8086 Physical Address Calculator<br>
+        Mini Project · HTML · CSS · JavaScript
+    </footer>
+
+</div>
+
+
+
+
+<script>
+function updateOffsetOptions() {
+    const segmentRegister =
+        document.getElementById("segmentRegister").value;
+
+    const offsetRegister =
+        document.getElementById("offsetRegister");
+
+    const options = {
+        CS: [
+            ["IP", "IP - Instruction Pointer"]
+        ],
+        DS: [
+            ["BX", "BX - Base Register"],
+            ["SI", "SI - Source Index"],
+            ["DI", "DI - Destination Index"],
+            ["Direct", "Direct Offset"]
+        ],
+        SS: [
+            ["SP", "SP - Stack Pointer"],
+            ["BP", "BP - Base Pointer"]
+        ],
+        ES: [
+            ["DI", "DI - Destination Index (String Operations)"],
+            ["BX", "BX - Base Register"],
+            ["SI", "SI - Source Index"],
+            ["Direct", "Direct Offset"]
+        ]
+    };
+
+    offsetRegister.innerHTML = "";
+
+    options[segmentRegister].forEach(function(item) {
+        const option = document.createElement("option");
+        option.value = item[0];
+        option.textContent = item[1];
+        offsetRegister.appendChild(option);
+    });
+
+    checkCombination();
+}
+
+function checkCombination() {
+    const segmentRegister =
+        document.getElementById("segmentRegister").value;
+
+    const offsetRegister =
+        document.getElementById("offsetRegister").value;
+
+    const warning = document.getElementById("warning");
+
+    const common = {
+        CS: ["IP"],
+        DS: ["BX", "SI", "DI", "Direct"],
+        SS: ["SP", "BP"],
+        ES: ["DI"]
+    };
+
+    if (!common[segmentRegister].includes(offsetRegister)) {
+        warning.textContent =
+            "⚠️ This is not a common register combination. " +
+            "Please check the selected registers.";
+        warning.style.display = "block";
+    } else {
+        warning.style.display = "none";
+    }
+}
+
+function calculateAddress() {
+    const segment = document.getElementById("segment")
+                         .value.trim();
+
+    const offset = document.getElementById("offset")
+                        .value.trim();
+
+    const segReg = document.getElementById("segmentRegister").value;
+    const offReg = document.getElementById("offsetRegister").value;
+
+    const error = document.getElementById("error");
+    const result = document.getElementById("result");
+
+    error.style.display = "none";
+
+    const hexPattern = /^[0-9A-Fa-f]{1,4}$/;
+
+    if (!hexPattern.test(segment) || !hexPattern.test(offset)) {
+        error.textContent =
+            "Please enter valid hexadecimal values from 0000 to FFFF.";
+        error.style.display = "block";
+        result.style.display = "none";
+        return;
+    }
+
+    const segValue = parseInt(segment, 16);
+    const offValue = parseInt(offset, 16);
+
+    const shiftedSegment = segValue * 16;
+    const physicalAddress = shiftedSegment + offValue;
+
+    const hex = value => value.toString(16)
+                              .toUpperCase()
+                              .padStart(5, "0");
+
+    const segHex = segValue.toString(16).toUpperCase()
+                          .padStart(4, "0");
+
+    const offHex = offValue.toString(16).toUpperCase()
+                          .padStart(4, "0");
+
+    const shiftedHex = hex(shiftedSegment);
+    const physicalHex = hex(physicalAddress);
+
+    document.getElementById("answer").textContent =
+        physicalHex + "H";
+
+    document.getElementById("formula").innerHTML =
+        "<strong>Formula applied</strong><br>" +
+        segReg + " × 10H + " + offReg + "<br>" +
+        shiftedHex + "H + " + offHex + "H = " +
+        physicalHex + "H";
+
+    const steps = [
+        "<strong>Segment:</strong> " + segReg + " = " + segHex + "H",
+        "<strong>Offset:</strong> " + offReg + " = " + offHex + "H",
+        "<strong>Multiply segment by 10H:</strong> " +
+            segHex + "H × 10H = " + shiftedHex + "H",
+        "<strong>Add the offset:</strong> " +
+            shiftedHex + "H + " + offHex + "H",
+        "<strong>Physical address:</strong> " +
+            physicalHex + "H"
+    ];
+
+    document.getElementById("steps").innerHTML =
+        steps.map((step, index) =>
+            '<div class="step">' +
+            '<span class="number">' + (index + 1) + '</span>' +
+            '<div>' + step + '</div></div>'
+        ).join("");
+
+    result.style.display = "block";
+    result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function clearCalculator() {
+    document.getElementById("segment").value = "";
+    document.getElementById("offset").value = "";
+    document.getElementById("result").style.display = "none";
+    document.getElementById("error").style.display = "none";
+    document.getElementById("warning").style.display = "none";
+    document.getElementById("segmentRegister").selectedIndex = 0;
+
+    updateOffsetOptions();
+}
+
+document.getElementById("segmentRegister")
+    .addEventListener("change", updateOffsetOptions);
+
+document.getElementById("offsetRegister")
+    .addEventListener("change", checkCombination);
+
+updateOffsetOptions();
+</script>
+
+
+
+</body>
+</html>
