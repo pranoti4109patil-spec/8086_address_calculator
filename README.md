@@ -24,7 +24,7 @@ Working: 2000h × 10h = 20000h, then 20000h + 0050h = 20050h
 
 ## Files
 
-- `index2.html`: the calculator (HTML, CSS and JavaScript)
+- `index.html`: the calculator (HTML, CSS and JavaScript)
 
 ## Author
 
